@@ -133,8 +133,7 @@ class ProxyShell:
         return ET.tostring(
             autodiscover,
             encoding='unicode',
-            method='xml',
-            xml_declaration=False
+            method='xml'
         )
 
     def gen_token(self):
