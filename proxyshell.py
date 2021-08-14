@@ -8,6 +8,7 @@ import string
 import requests
 import re
 import threading
+import sys
 import xml.etree.ElementTree as ET
 
 from pypsrp.wsman import WSMan
@@ -243,4 +244,8 @@ if __name__ == '__main__':
     requests.packages.urllib3.disable_warnings(
         requests.packages.urllib3.exceptions.InsecureRequestWarning
     )
+    if not (sys.version_info.major == 3 and sys.version_info.minor >= 8):
+        print("This script requires Python 3.8 or higher!")
+        print("You are using Python {}.{}.".format(sys.version_info.major, sys.version_info.minor))
+        sys.exit(1)
     main()
