@@ -8,7 +8,7 @@ import string
 import requests
 import re
 import threading
-import xml.etree.cElementTree as ET
+import xml.etree.ElementTree as ET
 
 from pypsrp.wsman import WSMan
 from pypsrp.powershell import PowerShell, RunspacePool
