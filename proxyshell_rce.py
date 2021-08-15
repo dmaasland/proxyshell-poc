@@ -353,11 +353,6 @@ def main():
         shell(input('PS> '), local_port, proxyshell)
 
 
-    print(r.content)
-
-    
-
-
 if __name__ == '__main__':
     requests.packages.urllib3.disable_warnings(
         requests.packages.urllib3.exceptions.InsecureRequestWarning
