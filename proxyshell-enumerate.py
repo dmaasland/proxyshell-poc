@@ -3,25 +3,11 @@
 # https://github.com/dmaasland/proxyshell-poc
 
 import argparse
-import base64
-import struct
 import random
 import string
 import requests
-import threading
 import sys
-import time
 import xml.etree.ElementTree as ET
-
-from pypsrp.wsman import WSMan
-from pypsrp.powershell import PowerShell, RunspacePool
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from socketserver import ThreadingMixIn
-from functools import partial
-
-
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
-    """Handle requests in a separate thread."""
 
 
 class ProxyShell:
